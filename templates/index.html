@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhishLens — Message Risk Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="letterhead">
+  <div class="letterhead-inner">
+    <div class="brand">
+      <div class="brand-mark">Phish<span>Lens</span></div>
+      <div class="brand-sub">message risk analyzer &amp; awareness coach</div>
+    </div>
+    <div class="letterhead-meta">runs entirely on your local server<br>nothing you paste is sent anywhere else</div>
+  </div>
+</div>
+
+<div class="page">
+
+  <div class="intro">
+    <h1>Check a message before you act on it</h1>
+    <p>Paste the text of a suspicious email or SMS, and the link it points to if it has one. PhishLens checks both against a set of known phishing patterns and explains exactly what it found.</p>
+  </div>
+
+  <div class="workspace">
+    <div class="intake">
+      <div class="field">
+        <label class="field-label" for="messageInput">message text</label>
+        <textarea id="messageInput" placeholder="Paste the email or SMS text here..."></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="urlInput">link included in the message (optional)</label>
+        <input type="text" id="urlInput" placeholder="https://example.com/verify-account">
+      </div>
+
+      <div class="samples">
+        <button class="sample-btn" id="loadPhishing" type="button">load a phishing example</button>
+        <button class="sample-btn" id="loadLegit" type="button">load a legitimate example</button>
+        <button class="sample-btn" id="clearAll" type="button">clear</button>
+      </div>
+
+      <button class="scan-btn" id="scanBtn" type="button">analyze message</button>
+
+      <div class="disclaimer">
+        Educational tool only. A "low" result is not a guarantee of safety — when in doubt, verify through an official channel you already trust rather than any contact details in the message itself.
+      </div>
+    </div>
+
+    <div class="report" id="reportPanel">
+      <div class="report-placeholder">
+        <div>
+          <span class="glyph">◎</span>
+          Your report will appear here once you run an analysis.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  PhishLens — B.Tech Mini Project. Rule-based analysis running on Flask + SQLite.
+</footer>
+
+<script>
+/* This file only handles DISPLAY. All the actual phishing-detection
+   logic now lives in rules.py on the server — this code just sends
+   the user's input there and draws whatever comes back. */
+
+const messageInput = document.getElementById("messageInput");
+const urlInput = document.getElementById("urlInput");
+
+const RISK_COPY = {
+  low: { verdict: "Low risk", note: "No strong phishing indicators were found. Stay routinely cautious." },
+  medium: { verdict: "Medium risk", note: "Some indicators were found. Verify through an official channel before acting." },
+  high: { verdict: "High risk", note: "Multiple strong indicators were found. Treat this message as unsafe." }
+};
+
+function gaugeSvg(score, risk) {
+  const clamped = Math.max(0, Math.min(100, score));
+  const angle = (clamped / 100) * 180;
+  const colorMap = { low: "#2F6F62", medium: "#A5730F", high: "#9C3C2C" };
+  const color = colorMap[risk];
+  const r = 46, cx = 54, cy = 54;
+  const rad = (Math.PI / 180) * (180 - angle);
+  const x = cx - r * Math.cos(rad);
+  const y = cy - r * Math.sin(rad);
+  const largeArc = angle > 180 ? 1 : 0;
+  return `
+    <svg width="108" height="70" viewBox="0 0 108 62">
+      <path d="M 8 54 A 46 46 0 0 1 100 54" fill="none" stroke="#DAD2BC" stroke-width="9" stroke-linecap="round"/>
+      <path d="M 8 54 A 46 46 0 ${largeArc} 1 ${x.toFixed(2)} ${y.toFixed(2)}" fill="none" stroke="${color}" stroke-width="9" stroke-linecap="round"/>
+      <text x="54" y="48" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="20" font-weight="600" fill="${color}">${clamped}</text>
+    </svg>
+  `;
+}
+
+function findingRow(f) {
+  const mark = f.triggered ? "✕" : "✓";
+  const markClass = f.triggered ? "flagged" : "clear";
+  return `
+    <div class="finding">
+      <div class="finding-mark ${markClass}">${mark}</div>
+      <div>
+        <p class="finding-label">${f.label}</p>
+        ${f.triggered ? `<p class="finding-tip">${f.tip}</p>` : `<p class="finding-tip">Not detected in this message.</p>`}
+        <span class="finding-tag">${f.triggered ? "+" + f.weight + " pts" : "clear"}</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderReport(result) {
+  const copy = RISK_COPY[result.risk];
+  const flaggedCount = [...result.message_findings, ...result.url_findings].filter(f => f.triggered).length;
+
+  const urlSection = result.has_url ? `
+    <div class="findings-heading">link analysis</div>
+    ${result.url_findings.map(findingRow).join("")}
+  ` : `
+    <div class="findings-heading">link analysis</div>
+    <p class="no-flags">No link was provided, so this check was skipped.</p>
+  `;
+
+  document.getElementById("reportPanel").innerHTML = `
+    <div class="report-head">
+      <div class="gauge-wrap">
+        ${gaugeSvg(result.score, result.risk)}
+        <div class="gauge-label">risk score</div>
+      </div>
+      <div>
+        <div class="verdict-title">assessment</div>
+        <div class="verdict ${result.risk}">${copy.verdict}</div>
+        <div class="verdict-score">${flaggedCount} indicator${flaggedCount === 1 ? "" : "s"} flagged &middot; ${copy.note}</div>
+      </div>
+    </div>
+    <div class="findings-heading" style="margin-top:2px;">message analysis</div>
+    ${result.message_findings.map(findingRow).join("")}
+    <div style="height:8px;"></div>
+    ${urlSection}
+  `;
+}
+
+document.getElementById("scanBtn").addEventListener("click", async () => {
+  const response = await fetch("/analyze", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: messageInput.value, url: urlInput.value })
+  });
+  const result = await response.json();
+  renderReport(result);
+});
+
+document.getElementById("clearAll").addEventListener("click", () => {
+  messageInput.value = "";
+  urlInput.value = "";
+  document.getElementById("reportPanel").innerHTML = `
+    <div class="report-placeholder">
+      <div><span class="glyph">◎</span>Your report will appear here once you run an analysis.</div>
+    </div>`;
+});
+
+document.getElementById("loadPhishing").addEventListener("click", () => {
+  messageInput.value = "Dear Customer, we noticed unusual activity on your account. It will be suspended within 24 hours unless you verify your identity immediately. Please confirm your password and OTP using the link below to avoid permanent closure. Act now!!!";
+  urlInput.value = "http://192.168.44.10/secure-login@update-account.info";
+});
+
+document.getElementById("loadLegit").addEventListener("click", () => {
+  messageInput.value = "Hi Aditi, your order #4471 has shipped and is expected to arrive on Thursday. You can track it anytime from your account page. Thanks for shopping with us.";
+  urlInput.value = "https://www.amazon.com/orders/track/4471";
+});
+</script>
+
+</body>
+</html>
