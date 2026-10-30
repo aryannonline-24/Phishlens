@@ -1,0 +1,60 @@
+// Requires Playwright in NODE_PATH and the app on PHISHLENS_TEST_URL.
+// Run only with a separate PHISHLENS_DB: this test creates saved scans/feedback.
+const {chromium}=require('playwright');
+const path=require('path');
+(async()=>{
+ const browser=await chromium.launch({headless:true,channel:'msedge'});
+ try{
+  const page=await browser.newPage({viewport:{width:1365,height:1000}}),errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  const base=process.env.PHISHLENS_TEST_URL||'http://127.0.0.1:5000';
+  await page.goto(base);
+  if(await page.locator('#save').isChecked())throw Error('Saving default is on');
+  await page.getByText('Import email, screenshot or QR image',{exact:true}).click();
+  await page.locator('#source-file').setInputFiles(path.join(__dirname,'fixtures/ocr-sample.png'));
+  await page.locator('#extract-file').click();
+  await page.waitForFunction(()=>document.getElementById('message').value.includes('send your password'));
+  await page.locator('#submit').click();
+  await page.getByText('Hybrid triage: review recommended',{exact:true}).waitFor();
+  await page.getByText('Experimental language model',{exact:true}).waitFor();
+  await page.getByText('Conversation context (optional)',{exact:true}).click();
+  await page.locator('#previous-messages').fill('Use account 11223344');
+  await page.locator('#message').fill('Use account 99887766');
+  await page.locator('#sender').fill('new@example.com');await page.locator('#previous-sender').fill('old@example.com');
+  await page.locator('#save').check();await page.locator('#submit').click();
+  await page.getByText('Saved locally.',{exact:true}).waitFor();
+  await page.getByRole('button',{name:'Submit for local review',exact:true}).click();
+  await page.getByText('Pending review in Evaluation & feedback.',{exact:false}).waitFor();
+  await page.locator('#dashboard-tab').click();
+  await page.getByRole('button',{name:'Approve as phishing',exact:true}).first().click();
+  await page.getByText('reviewed · suggested phishing',{exact:false}).first().waitFor();
+  await page.locator('#run-evaluation').click();
+  await page.getByText('Synthetic correlated variants, not real-world validation.',{exact:false}).first().waitFor();
+  await page.screenshot({path:path.join(__dirname,'advanced-dashboard.png'),fullPage:true});
+  const downloadPromise=page.waitForEvent('download');await page.locator('#export-feedback').click();
+  const download=await downloadPromise;if(!download.suggestedFilename().endsWith('.json'))throw Error('Missing export');
+  await page.locator('#analyzer-tab').click();
+  const eml='From: Bank <bank@example.com>\r\nReply-To: thief@evil.com\r\nSubject: Account notice\r\nContent-Type: text/html; charset=utf-8\r\n\r\n<a href="https://evil.com">https://paypal.com</a>';
+  await page.locator('#source-file').setInputFiles({name:'notice.eml',mimeType:'message/rfc822',buffer:Buffer.from(eml)});
+  await page.locator('#extract-file').click();await page.getByText('Email extracted.',{exact:false}).waitFor();
+  await page.locator('#save').uncheck();await page.locator('#submit').click();
+  await page.getByText('Imported source',{exact:true}).click();
+  await page.getByText('Displayed link hides a different domain',{exact:true}).waitFor();
+  await page.screenshot({path:path.join(__dirname,'advanced-desktop.png'),fullPage:true});
+  await page.locator('#check-reputation').click();await page.getByText('Confirm URL sharing before running this check.',{exact:true}).waitFor();
+  await page.locator('#network-url').fill('https://example.com');await page.locator('#network-consent').check();
+  await page.locator('#inspect-website').click();await page.getByText('Website inspection is disabled.',{exact:false}).waitFor();
+  const incoming={message:'Review imported selection',url:'https://example.com'};
+  await page.goto(base+'/#import='+encodeURIComponent(JSON.stringify(incoming)));
+  await page.waitForFunction(()=>document.getElementById('message').value==='Review imported selection');
+  if(page.url().includes('#'))throw Error('Import fragment was not cleared');
+  if(await page.locator('#save').isChecked())throw Error('Import auto-saves');
+  if(await page.locator('#network-consent').isChecked())throw Error('Import retained online consent');
+  await page.getByText('Imported selection is ready. Review it, then Analyze.',{exact:true}).waitFor();
+  await page.setViewportSize({width:390,height:844});
+  await page.screenshot({path:path.join(__dirname,'advanced-mobile.png'),fullPage:true});
+  if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw Error('Mobile overflow');
+  if(errors.length)throw Error(errors.join('\n'));
+  console.log('Advanced browser workflows passed, including OCR, context, email, review/export, evaluation, network consent and extension handoff.');
+ }finally{await browser.close();}
+})().catch(error=>{console.error(error);process.exitCode=1;});

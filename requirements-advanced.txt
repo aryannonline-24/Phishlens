@@ -1,0 +1,4 @@
+# Optional image extraction; core classifier and email parsing use stdlib.
+Pillow>=11.3,<13
+opencv-python-headless>=4.12,<5
+pytesseract>=0.3.13,<0.4

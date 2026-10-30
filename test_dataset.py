@@ -20,12 +20,30 @@ TEST_SET = [
     # keep adding more here — aim for 25-30 total, roughly half phishing, half legitimate
 ]
 
-correct = 0
-for case in TEST_SET:
-    result = run_analysis(case["text"], case["url"])
-    predicted = "phishing" if result["risk"] in ("medium", "high") else "legitimate"
-    is_correct = predicted == case["label"]
-    correct += is_correct
-    print(f'{case["label"]:12} -> predicted {predicted:12} (score={result["score"]})  {"OK" if is_correct else "MISS"}')
+def evaluate(cases=TEST_SET):
+    """Small developer sample, not an independent benchmark."""
+    tp = tn = fp = fn = 0
+    for case in cases:
+        result = run_analysis(case['text'], case['url'])
+        positive = result['risk'] in ('medium', 'high')
+        actual = case['label'] == 'phishing'
+        tp += positive and actual
+        tn += not positive and not actual
+        fp += positive and not actual
+        fn += not positive and actual
+        print(f"{case['label']:12} score={result['score']:3} risk={result['risk']:6} {'OK' if positive == actual else 'MISS'}")
+    total = tp + tn + fp + fn
+    precision = tp / (tp + fp) if tp + fp else 0
+    recall = tp / (tp + fn) if tp + fn else 0
+    metrics = {'samples': total, 'true_positive': tp, 'true_negative': tn,
+        'false_positive': fp, 'false_negative': fn,
+        'accuracy': (tp + tn) / total if total else 0,
+        'precision': precision, 'recall': recall,
+        'f1': 2 * precision * recall / (precision + recall) if precision + recall else 0}
+    return metrics
 
-print(f"\nAccuracy: {correct}/{len(TEST_SET)} = {correct/len(TEST_SET)*100:.1f}%")
+
+if __name__ == '__main__':
+    import json
+    print(json.dumps(evaluate(), indent=2))
+    print('This small development sample does not establish real-world accuracy.')

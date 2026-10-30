@@ -1,0 +1,278 @@
+{
+  "rule": {
+    "samples": 96,
+    "true_positive": 32,
+    "true_negative": 32,
+    "false_positive": 16,
+    "false_negative": 16,
+    "precision": 0.6666666666666666,
+    "recall": 0.6666666666666666,
+    "false_positive_rate": 0.3333333333333333,
+    "f1": 0.6666666666666666,
+    "accuracy": 0.6666666666666666
+  },
+  "model": {
+    "samples": 96,
+    "true_positive": 22,
+    "true_negative": 45,
+    "false_positive": 3,
+    "false_negative": 26,
+    "precision": 0.88,
+    "recall": 0.4583333333333333,
+    "false_positive_rate": 0.0625,
+    "f1": 0.6027397260273972,
+    "accuracy": 0.6979166666666666
+  },
+  "hybrid": {
+    "samples": 96,
+    "true_positive": 43,
+    "true_negative": 32,
+    "false_positive": 16,
+    "false_negative": 5,
+    "precision": 0.7288135593220338,
+    "recall": 0.8958333333333334,
+    "false_positive_rate": 0.3333333333333333,
+    "f1": 0.8037383177570093,
+    "accuracy": 0.78125
+  },
+  "categories": {
+    "attachment": {
+      "rule": {
+        "samples": 8,
+        "true_positive": 0,
+        "true_negative": 0,
+        "false_positive": 0,
+        "false_negative": 8,
+        "precision": 0,
+        "recall": 0.0,
+        "false_positive_rate": 0,
+        "f1": 0,
+        "accuracy": 0.0
+      },
+      "hybrid": {
+        "samples": 8,
+        "true_positive": 3,
+        "true_negative": 0,
+        "false_positive": 0,
+        "false_negative": 5,
+        "precision": 1.0,
+        "recall": 0.375,
+        "false_positive_rate": 0,
+        "f1": 0.5454545454545454,
+        "accuracy": 0.375
+      }
+    },
+    "credentials": {
+      "rule": {
+        "samples": 8,
+        "true_positive": 0,
+        "true_negative": 0,
+        "false_positive": 8,
+        "false_negative": 0,
+        "precision": 0.0,
+        "recall": 0,
+        "false_positive_rate": 1.0,
+        "f1": 0,
+        "accuracy": 0.0
+      },
+      "hybrid": {
+        "samples": 8,
+        "true_positive": 0,
+        "true_negative": 0,
+        "false_positive": 8,
+        "false_negative": 0,
+        "precision": 0.0,
+        "recall": 0,
+        "false_positive_rate": 1.0,
+        "f1": 0,
+        "accuracy": 0.0
+      }
+    },
+    "hindi": {
+      "rule": {
+        "samples": 16,
+        "true_positive": 8,
+        "true_negative": 8,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0,
+        "f1": 1.0,
+        "accuracy": 1.0
+      },
+      "hybrid": {
+        "samples": 16,
+        "true_positive": 8,
+        "true_negative": 8,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0,
+        "f1": 1.0,
+        "accuracy": 1.0
+      }
+    },
+    "hinglish": {
+      "rule": {
+        "samples": 8,
+        "true_positive": 8,
+        "true_negative": 0,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0,
+        "f1": 1.0,
+        "accuracy": 1.0
+      },
+      "hybrid": {
+        "samples": 8,
+        "true_positive": 8,
+        "true_negative": 0,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0,
+        "f1": 1.0,
+        "accuracy": 1.0
+      }
+    },
+    "identity": {
+      "rule": {
+        "samples": 16,
+        "true_positive": 8,
+        "true_negative": 0,
+        "false_positive": 8,
+        "false_negative": 0,
+        "precision": 0.5,
+        "recall": 1.0,
+        "false_positive_rate": 1.0,
+        "f1": 0.6666666666666666,
+        "accuracy": 0.5
+      },
+      "hybrid": {
+        "samples": 16,
+        "true_positive": 8,
+        "true_negative": 0,
+        "false_positive": 8,
+        "false_negative": 0,
+        "precision": 0.5,
+        "recall": 1.0,
+        "false_positive_rate": 1.0,
+        "f1": 0.6666666666666666,
+        "accuracy": 0.5
+      }
+    },
+    "indirect_request": {
+      "rule": {
+        "samples": 8,
+        "true_positive": 0,
+        "true_negative": 0,
+        "false_positive": 0,
+        "false_negative": 8,
+        "precision": 0,
+        "recall": 0.0,
+        "false_positive_rate": 0,
+        "f1": 0,
+        "accuracy": 0.0
+      },
+      "hybrid": {
+        "samples": 8,
+        "true_positive": 8,
+        "true_negative": 0,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0,
+        "f1": 1.0,
+        "accuracy": 1.0
+      }
+    },
+    "newsletter": {
+      "rule": {
+        "samples": 8,
+        "true_positive": 0,
+        "true_negative": 8,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 0,
+        "recall": 0,
+        "false_positive_rate": 0.0,
+        "f1": 0,
+        "accuracy": 1.0
+      },
+      "hybrid": {
+        "samples": 8,
+        "true_positive": 0,
+        "true_negative": 8,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 0,
+        "recall": 0,
+        "false_positive_rate": 0.0,
+        "f1": 0,
+        "accuracy": 1.0
+      }
+    },
+    "obfuscation": {
+      "rule": {
+        "samples": 8,
+        "true_positive": 0,
+        "true_negative": 8,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 0,
+        "recall": 0,
+        "false_positive_rate": 0.0,
+        "f1": 0,
+        "accuracy": 1.0
+      },
+      "hybrid": {
+        "samples": 8,
+        "true_positive": 0,
+        "true_negative": 8,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 0,
+        "recall": 0,
+        "false_positive_rate": 0.0,
+        "f1": 0,
+        "accuracy": 1.0
+      }
+    },
+    "payment": {
+      "rule": {
+        "samples": 16,
+        "true_positive": 8,
+        "true_negative": 8,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0,
+        "f1": 1.0,
+        "accuracy": 1.0
+      },
+      "hybrid": {
+        "samples": 16,
+        "true_positive": 8,
+        "true_negative": 8,
+        "false_positive": 0,
+        "false_negative": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0,
+        "f1": 1.0,
+        "accuracy": 1.0
+      }
+    }
+  },
+  "ruleset_version": "2.1.0",
+  "model_version": "nb-1-1d60e7f683a2",
+  "warning": "Synthetic correlated variants, not real-world validation. Model threshold 0.85 is a design choice, not calibrated.",
+  "split": "heldout"
+}

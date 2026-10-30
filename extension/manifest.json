@@ -1,0 +1,8 @@
+{
+  "manifest_version": 3,
+  "name": "PhishLens Local Checker",
+  "version": "1.0.0",
+  "description": "Explicitly send selected text or the current page URL to your local PhishLens app for review.",
+  "permissions": ["activeTab", "scripting"],
+  "action": {"default_popup": "popup.html"}
+}

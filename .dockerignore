@@ -1,0 +1,4 @@
+*
+!inspector.Dockerfile
+!inspection_worker.py
+!safe_fetch.py
